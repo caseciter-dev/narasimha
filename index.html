@@ -2,50 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stotra Sangraha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Om Namo Narayanaya</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <style>
         :root { --primary: #5d4037; --bg: #fdfcf9; }
-        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; padding-bottom: 70px; }
-        #main-container { max-width: 800px; margin: auto; padding: 20px; transition: 0.3s; }
+        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; font-weight: bold; }
+        /* Header replacement: Floating Settings Button */
+        #settings-btn { position: fixed; top: 15px; right: 15px; z-index: 999; background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        /* Container scrolls internally */
+        #main-container { flex: 1; overflow-y: auto; max-width: 800px; width: 100%; margin: auto; padding: 60px 20px 20px 20px; box-sizing: border-box; }
+        
+        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; font-weight: bold; background: white; }
         .entry-content { display: none; padding: 20px; background: #fff; border-bottom: 2px solid var(--primary); line-height: 1.7; }
         .entry-content.open { display: block; }
 
-        #admin-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        #admin-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-flex { display: flex; gap: 20px; }
         
-        @media (max-width: 768px) {
-            .admin-flex { flex-direction: column; }
-            #admin-overlay { padding: 10px; }
-        }
+        @media (max-width: 768px) { .admin-flex { flex-direction: column; } }
         
         .toolbar { background: #f0f0f0; padding: 10px; display: flex; gap: 5px; flex-wrap: wrap; border: 1px solid #ccc; border-radius: 5px 5px 0 0; }
         .toolbar button, .toolbar select { padding: 10px; cursor: pointer; border: 1px solid #bbb; }
         #editor { border: 1px solid #ccc; padding: 15px; min-height: 300px; background: #fff; outline: none; border-top: none; }
-        
-        #footer-tab { position: fixed; bottom: 0; width: 100%; background: var(--primary); color: white; padding: 15px; text-align: center; cursor: pointer; font-family: sans-serif; z-index: 999; }
-        #settings-modal { display: none; position: fixed; bottom: 60px; right: 5%; width: 90%; max-width: 300px; background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #settings-modal { display: none; position: fixed; top: 60px; right: 15px; background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000; }
     </style>
 </head>
 <body>
 
-    <div id="main-container">
-        <h1 style="text-align:center; color:var(--primary);">Stotra Sangraha</h1>
-        <div id="readerList">Loading...</div>
-    </div>
-
-    <div id="footer-tab" onclick="toggleSettings()">Settings / Feedback / Edit</div>
+    <button id="settings-btn" onclick="toggleSettings()">Settings</button>
 
     <div id="settings-modal">
-        <h3>Display Settings</h3>
-        <label>Font Size: 
-            <input type="range" id="fontSizeRange" min="14" max="30" value="18" oninput="updateFontSize(this.value)">
-        </label>
+        <h3 style="margin-top:0">Display Settings</h3>
+        <label>Font Size: <input type="range" id="fontSizeRange" min="14" max="30" value="18" oninput="updateFontSize(this.value)"></label>
         <hr>
-        <button onclick="requestEdit()">Access Edit Mode</button>
+        <button onclick="requestEdit()">Edit Library</button>
+    </div>
+
+    <div id="main-container">
+        <h1 style="text-align:center; color:var(--primary);">Om Namo Narayanaya</h1>
+        <div id="readerList">Loading...</div>
     </div>
 
     <div id="admin-overlay">
@@ -61,15 +59,11 @@
                 <input type="file" id="importInput" style="display:none" onchange="importData(event)">
             </div>
             <div style="flex: 2;">
-                <h3>Rich Text Editor</h3>
                 <input type="hidden" id="editingId">
                 <input type="text" id="codeId" placeholder="Name of Stotra" style="width:100%; padding:10px; margin-bottom:5px; box-sizing: border-box;">
-                
                 <div class="toolbar">
                     <button onclick="exec('bold')"><b>B</b></button>
                     <button onclick="exec('italic')"><i>I</i></button>
-                    <button onclick="exec('underline')"><u>U</u></button>
-                    <button onclick="exec('justifyLeft')">Left</button>
                     <button onclick="exec('justifyCenter')">Center</button>
                     <input type="color" onchange="exec('foreColor', this.value)">
                 </div>
@@ -81,18 +75,12 @@
 
     <script>
         let registry = [];
-
         window.onload = async () => {
             const saved = localStorage.getItem('stotraRegistry');
             if (saved) { registry = JSON.parse(saved); } 
             else {
-                try {
-                    const res = await fetch('library.json');
-                    if (res.ok) {
-                        registry = await res.json();
-                        localStorage.setItem('stotraRegistry', JSON.stringify(registry));
-                    }
-                } catch(e) { console.log("Starting empty library."); }
+                try { const res = await fetch('library.json'); if (res.ok) { registry = await res.json(); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); } } 
+                catch(e) { console.log("Starting empty."); }
             }
             const savedSize = localStorage.getItem('userFontSize') || '18';
             document.getElementById('fontSizeRange').value = savedSize;
@@ -101,61 +89,22 @@
         };
 
         function updateFontSize(val) {
-            const size = val + 'px';
-            document.getElementById('main-container').style.fontSize = size;
+            document.getElementById('main-container').style.fontSize = val + 'px';
             document.querySelectorAll('.entry-content').forEach(el => {
-                el.style.fontSize = size;
-                // Force override nested inline styles[cite: 1]
-                el.querySelectorAll('*').forEach(child => child.style.fontSize = size);
+                el.style.fontSize = val + 'px';
+                el.querySelectorAll('*').forEach(child => child.style.fontSize = val + 'px');
             });
             localStorage.setItem('userFontSize', val);
         }
 
         function exec(cmd, val = null) { document.execCommand(cmd, false, val); document.getElementById('editor').focus(); }
         function renderAll() { renderReader(); renderAdmin(); }
-
-        function renderReader() {
-            document.getElementById('readerList').innerHTML = registry.map(item => `
-                <div class="entry-title" onclick="this.nextElementSibling.classList.toggle('open')">${item.id}</div>
-                <div class="entry-content">${DOMPurify.sanitize(item.content)}</div>
-            `).join('');
-        }
-
-        function renderAdmin() {
-            document.getElementById('adminList').innerHTML = registry.map((item) => `
-                <div style="margin-bottom:10px; border-bottom: 1px solid #ccc;">
-                    <button onclick="editItem('${item.id}')">Edit</button>
-                    <button onclick="deleteItem('${item.id}')" style="color:red">Del</button>
-                    ${item.id}
-                </div>
-            `).join('');
-        }
-
-        function saveCode() {
-            const id = document.getElementById('codeId').value.trim();
-            const content = document.getElementById('editor').innerHTML;
-            const editId = document.getElementById('editingId').value;
-            if(!id) return alert("Enter name");
-            if(editId) {
-                const idx = registry.findIndex(i => i.id === editId);
-                registry[idx] = {id, content};
-            } else registry.push({id, content});
-            localStorage.setItem('stotraRegistry', JSON.stringify(registry));
-            renderAll();
-            updateFontSize(localStorage.getItem('userFontSize') || 18);
-            alert("Saved!");
-        }
-
-        function editItem(id) {
-            const item = registry.find(i => i.id === id);
-            document.getElementById('editingId').value = item.id;
-            document.getElementById('codeId').value = item.id;
-            document.getElementById('editor').innerHTML = item.content;
-        }
-
-        function deleteItem(id) { registry = registry.filter(i => i.id !== id); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); renderAll(); }
+        function renderReader() { document.getElementById('readerList').innerHTML = registry.map(item => `<div class="entry-title" onclick="this.nextElementSibling.classList.toggle('open')">${item.id}</div><div class="entry-content">${DOMPurify.sanitize(item.content)}</div>`).join(''); }
+        function renderAdmin() { document.getElementById('adminList').innerHTML = registry.map(item => `<div style="margin-bottom:10px;"><button onclick="editItem('${item.id}')">Edit</button> ${item.id}</div>`).join(''); }
+        function saveCode() { const id = document.getElementById('codeId').value.trim(); const content = document.getElementById('editor').innerHTML; const editId = document.getElementById('editingId').value; if(!id) return; if(editId) { const idx = registry.findIndex(i => i.id === editId); registry[idx] = {id, content}; } else registry.push({id, content}); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); renderAll(); updateFontSize(localStorage.getItem('userFontSize') || 18); alert("Saved!"); }
+        function editItem(id) { const item = registry.find(i => i.id === id); document.getElementById('editingId').value = item.id; document.getElementById('codeId').value = item.id; document.getElementById('editor').innerHTML = item.content; }
         function toggleSettings() { const m = document.getElementById('settings-modal'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
-        function requestEdit() { if(prompt("Enter Code:") === '1234') { document.getElementById('admin-overlay').style.display = 'block'; toggleSettings(); } else alert("Invalid"); }
+        function requestEdit() { if(prompt("Enter Code:") === '1234') { document.getElementById('admin-overlay').style.display = 'block'; toggleSettings(); } }
         function closeAdmin() { document.getElementById('admin-overlay').style.display = 'none'; }
         function exportData() { const blob = new Blob([JSON.stringify(registry, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'library.json'; a.click(); }
         function importData(e) { const reader = new FileReader(); reader.onload = (ev) => { registry = JSON.parse(ev.target.result); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); renderAll(); }; reader.readAsText(e.target.files[0]); }
