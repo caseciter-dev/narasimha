@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stotra Sangraha</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <style>
+        :root { --primary: #5d4037; --bg: #fdfcf9; }
+        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; padding-bottom: 70px; }
+        #main-container { max-width: 800px; margin: auto; padding: 20px; transition: 0.3s; }
+        
+        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; }
+        .entry-content { display: none; padding: 20px; background: #fff; border-bottom: 2px solid var(--primary); line-height: 1.7; }
+        .entry-content.open { display: block; }
+
+        /* Admin Overlay */
+        #admin-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; padding: 40px; box-sizing: border-box; overflow-y: auto; }
+        
+        /* Rich Toolbar */
+        .toolbar { background: #f0f0f0; padding: 10px; display: flex; gap: 5px; flex-wrap: wrap; border: 1px solid #ccc; border-radius: 5px 5px 0 0; }
+        .toolbar button, .toolbar select { padding: 8px; cursor: pointer; border: 1px solid #bbb; }
+        #editor { border: 1px solid #ccc; padding: 15px; min-height: 400px; background: #fff; outline: none; border-top: none; }
+        
+        #footer-tab { position: fixed; bottom: 0; width: 100%; background: var(--primary); color: white; padding: 15px; text-align: center; cursor: pointer; font-family: sans-serif; z-index: 999; }
+        #settings-modal { display: none; position: fixed; bottom: 60px; right: 20px; background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <h1 style="text-align:center; color:var(--primary);">Stotra Sangraha</h1>
+        <div id="readerList">Loading...</div>
+    </div>
+
+    <div id="footer-tab" onclick="toggleSettings()">Settings / Feedback / Edit</div>
+
+    <div id="settings-modal">
+        <h3>Display Settings</h3>
+        <label>Font Size: <input type="range" min="14" max="30" value="18" oninput="document.getElementById('main-container').style.fontSize = this.value + 'px'"></label>
+        <hr>
+        <button onclick="requestEdit()">Access Edit Mode</button>
+    </div>
+
+    <div id="admin-overlay">
+        <button onclick="closeAdmin()">Close Dashboard</button>
+        <h2>Admin Dashboard</h2>
+        <div style="display: flex; gap: 40px;">
+            <div style="width: 30%;">
+                <h3>Entries</h3>
+                <div id="adminList"></div>
+                <hr>
+                <button onclick="exportData()">Export JSON</button>
+                <button onclick="document.getElementById('importInput').click()">Import JSON</button>
+                <input type="file" id="importInput" style="display:none" onchange="importData(event)">
+            </div>
+            <div style="flex:1">
+                <h3>Rich Text Editor</h3>
+                <input type="hidden" id="editingId">
+                <input type="text" id="codeId" placeholder="Name of Stotra" style="width:100%; padding:10px; margin-bottom:5px;">
+                
+                <div class="toolbar">
+                    <button onclick="exec('bold')"><b>B</b></button>
+                    <button onclick="exec('italic')"><i>I</i></button>
+                    <button onclick="exec('underline')"><u>U</u></button>
+                    <select onchange="exec('fontSize', this.value)"><option value="3">Size</option><option value="4">Medium</option><option value="5">Large</option><option value="6">Extra Large</option></select>
+                    <select onchange="exec('fontName', this.value)"><option value="Georgia">Serif</option><option value="Arial">Sans</option><option value="Courier New">Mono</option></select>
+                    <button onclick="exec('justifyLeft')">Left</button>
+                    <button onclick="exec('justifyCenter')">Center</button>
+                    <input type="color" onchange="exec('foreColor', this.value)" title="Text Color">
+                </div>
+                <div id="editor" contenteditable="true"></div>
+                <button onclick="saveCode()" style="padding:10px 20px; margin-top:10px;">Save to Memory</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let registry = [];
+
+        window.onload = async () => {
+            const saved = localStorage.getItem('stotraRegistry');
+            if (saved) { registry = JSON.parse(saved); } 
+            else {
+                try { const res = await fetch('library.json'); registry = await res.json(); } 
+                catch(e) { console.log("Starting empty library."); }
+            }
+            renderAll();
+        };
+
+        function exec(cmd, val = null) { document.execCommand(cmd, false, val); document.getElementById('editor').focus(); }
+        function renderAll() { renderReader(); renderAdmin(); }
+
+        function renderReader() {
+            document.getElementById('readerList').innerHTML = registry.map(item => `
+                <div class="entry-title" onclick="this.nextElementSibling.classList.toggle('open')">${item.id}</div>
+                <div class="entry-content">${DOMPurify.sanitize(item.content)}</div>
+            `).join('');
+        }
+
+        function renderAdmin() {
+            document.getElementById('adminList').innerHTML = registry.map((item, index) => `
+                <div style="margin-bottom:10px; border-bottom: 1px solid #ccc;">
+                    <button onclick="editItem('${item.id}')">Edit</button>
+                    <button onclick="deleteItem('${item.id}')" style="color:red">Del</button>
+                    ${item.id}
+                </div>
+            `).join('');
+        }
+
+        function saveCode() {
+            const id = document.getElementById('codeId').value.trim();
+            const content = document.getElementById('editor').innerHTML;
+            const editId = document.getElementById('editingId').value;
+            if(!id) return alert("Enter name");
+            if(editId) {
+                const idx = registry.findIndex(i => i.id === editId);
+                registry[idx] = {id, content};
+            } else registry.push({id, content});
+            localStorage.setItem('stotraRegistry', JSON.stringify(registry));
+            renderAll();
+            alert("Saved!");
+        }
+
+        function editItem(id) {
+            const item = registry.find(i => i.id === id);
+            document.getElementById('editingId').value = item.id;
+            document.getElementById('codeId').value = item.id;
+            document.getElementById('editor').innerHTML = item.content;
+        }
+
+        function deleteItem(id) { registry = registry.filter(i => i.id !== id); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); renderAll(); }
+        function toggleSettings() { const m = document.getElementById('settings-modal'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
+        function requestEdit() { if(prompt("Enter Code:") === '1234') { document.getElementById('admin-overlay').style.display = 'block'; toggleSettings(); } else alert("Invalid"); }
+        function closeAdmin() { document.getElementById('admin-overlay').style.display = 'none'; }
+        function exportData() { const blob = new Blob([JSON.stringify(registry, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'library.json'; a.click(); }
+        function importData(e) { const reader = new FileReader(); reader.onload = (ev) => { registry = JSON.parse(ev.target.result); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); renderAll(); }; reader.readAsText(e.target.files[0]); }
+    </script>
+</body>
+</html>
