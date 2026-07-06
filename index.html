@@ -10,15 +10,13 @@
         body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; padding-bottom: 70px; }
         #main-container { max-width: 800px; margin: auto; padding: 20px; transition: 0.3s; }
         
-        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; }
+        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; font-weight: bold; }
         .entry-content { display: none; padding: 20px; background: #fff; border-bottom: 2px solid var(--primary); line-height: 1.7; }
         .entry-content.open { display: block; }
 
-        /* Admin Overlay */
         #admin-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-flex { display: flex; gap: 20px; }
         
-        /* Mobile Responsive adjustments */
         @media (max-width: 768px) {
             .admin-flex { flex-direction: column; }
             #admin-overlay { padding: 10px; }
@@ -43,7 +41,9 @@
 
     <div id="settings-modal">
         <h3>Display Settings</h3>
-        <label>Font Size: <input type="range" min="14" max="30" value="18" oninput="document.getElementById('main-container').style.fontSize = this.value + 'px'"></label>
+        <label>Font Size: 
+            <input type="range" id="fontSizeRange" min="14" max="30" value="18" oninput="updateFontSize(this.value)">
+        </label>
         <hr>
         <button onclick="requestEdit()">Access Edit Mode</button>
     </div>
@@ -69,7 +69,6 @@
                     <button onclick="exec('bold')"><b>B</b></button>
                     <button onclick="exec('italic')"><i>I</i></button>
                     <button onclick="exec('underline')"><u>U</u></button>
-                    <select onchange="exec('fontSize', this.value)"><option value="3">Size</option><option value="4">Medium</option><option value="5">Large</option></select>
                     <button onclick="exec('justifyLeft')">Left</button>
                     <button onclick="exec('justifyCenter')">Center</button>
                     <input type="color" onchange="exec('foreColor', this.value)">
@@ -85,21 +84,32 @@
 
         window.onload = async () => {
             const saved = localStorage.getItem('stotraRegistry');
-            if (saved) {
-                registry = JSON.parse(saved);
-            } else {
+            if (saved) { registry = JSON.parse(saved); } 
+            else {
                 try {
                     const res = await fetch('library.json');
                     if (res.ok) {
                         registry = await res.json();
                         localStorage.setItem('stotraRegistry', JSON.stringify(registry));
                     }
-                } catch(e) {
-                    console.log("Starting empty library or library.json not found.");
-                }
+                } catch(e) { console.log("Starting empty library."); }
             }
+            const savedSize = localStorage.getItem('userFontSize') || '18';
+            document.getElementById('fontSizeRange').value = savedSize;
             renderAll();
+            updateFontSize(savedSize);
         };
+
+        function updateFontSize(val) {
+            const size = val + 'px';
+            document.getElementById('main-container').style.fontSize = size;
+            document.querySelectorAll('.entry-content').forEach(el => {
+                el.style.fontSize = size;
+                // Force override nested inline styles[cite: 1]
+                el.querySelectorAll('*').forEach(child => child.style.fontSize = size);
+            });
+            localStorage.setItem('userFontSize', val);
+        }
 
         function exec(cmd, val = null) { document.execCommand(cmd, false, val); document.getElementById('editor').focus(); }
         function renderAll() { renderReader(); renderAdmin(); }
@@ -132,6 +142,7 @@
             } else registry.push({id, content});
             localStorage.setItem('stotraRegistry', JSON.stringify(registry));
             renderAll();
+            updateFontSize(localStorage.getItem('userFontSize') || 18);
             alert("Saved!");
         }
 
