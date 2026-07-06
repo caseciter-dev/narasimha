@@ -2,18 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Added viewport settings to prevent scaling and bouncing -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Om Namo Narayanaya</title>
+    <title>Stotra Sangraha</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <style>
         :root { --primary: #5d4037; --bg: #fdfcf9; }
-        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* Header replacement: Floating Settings Button */
+        /* Prevent elastic bouncing on mobile */
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            overscroll-behavior: none; 
+            touch-action: manipulation;
+        }
+
+        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; display: flex; flex-direction: column; }
+        
         #settings-btn { position: fixed; top: 15px; right: 15px; z-index: 999; background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* Container scrolls internally */
-        #main-container { flex: 1; overflow-y: auto; max-width: 800px; width: 100%; margin: auto; padding: 60px 20px 20px 20px; box-sizing: border-box; }
+        /* Container scrolls internally only */
+        #main-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; max-width: 800px; width: 100%; margin: auto; padding: 60px 20px 20px 20px; box-sizing: border-box; }
         
         .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; font-weight: bold; background: white; }
         .entry-content { display: none; padding: 20px; background: #fff; border-bottom: 2px solid var(--primary); line-height: 1.7; }
@@ -42,7 +53,7 @@
     </div>
 
     <div id="main-container">
-        <h1 style="text-align:center; color:var(--primary);">Om Namo Narayanaya</h1>
+        <h1 style="text-align:center; color:var(--primary);">Stotra Sangraha</h1>
         <div id="readerList">Loading...</div>
     </div>
 
