@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Om Namo Narayanaya</title>
+    <title>Stotra Sangraha</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <style>
         :root { --primary: #5d4037; --bg: #fdfcf9; }
         
-        /* Force the body to be static and non-moving */
+        /* Lock viewport to prevent mobile bouncing */
         html, body { 
             position: fixed;
             width: 100%;
@@ -22,7 +22,6 @@
         
         #settings-btn { position: fixed; top: 15px; right: 15px; z-index: 999; background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* The container itself scrolls, the parent body is fixed */
         #main-container { 
             position: absolute;
             top: 0;
@@ -63,7 +62,7 @@
     </div>
 
     <div id="main-container">
-        <h1 style="text-align:center; color:var(--primary);">ॐ नमो नारायणाय </h1>
+        <h1 style="text-align:center; color:var(--primary);">Stotra Sangraha</h1>
         <div id="readerList">Loading...</div>
     </div>
 
@@ -97,11 +96,16 @@
     <script>
         let registry = [];
         window.onload = async () => {
-            const saved = localStorage.getItem('stotraRegistry');
-            if (saved) { registry = JSON.parse(saved); } 
-            else {
-                try { const res = await fetch('library.json'); if (res.ok) { registry = await res.json(); localStorage.setItem('stotraRegistry', JSON.stringify(registry)); } } 
-                catch(e) { console.log("Starting empty."); }
+            // Prioritize library.json fetch[cite: 1]
+            try {
+                const res = await fetch('library.json');
+                if (res.ok) {
+                    registry = await res.json();
+                    localStorage.setItem('stotraRegistry', JSON.stringify(registry));
+                } else { throw new Error(); }
+            } catch(e) {
+                const saved = localStorage.getItem('stotraRegistry');
+                if (saved) { registry = JSON.parse(saved); }
             }
             const savedSize = localStorage.getItem('userFontSize') || '18';
             document.getElementById('fontSizeRange').value = savedSize;
