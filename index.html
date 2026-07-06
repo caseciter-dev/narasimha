@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stotra Library</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <style>
+        :root { --primary: #5d4037; --bg: #fdfcf9; }
+        body { font-family: 'Georgia', serif; background: var(--bg); color: #333; margin: 0; }
+        nav { background: var(--primary); padding: 1rem; color: #fff; display: flex; gap: 20px; justify-content: center; }
+        nav span { cursor: pointer; opacity: 0.8; font-family: sans-serif; }
+        .page { display: none; padding: 20px; max-width: 800px; margin: auto; }
+        .active { display: block; }
+
+        .entry-title { padding: 15px; border-bottom: 1px solid #e0dcd5; cursor: pointer; font-size: 1.2rem; }
+        .entry-content { display: none; padding: 20px; background: #fff; border-bottom: 2px solid var(--primary); }
+        .entry-content.open { display: block; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <span onclick="showPage('reader-page')">Read</span>
+    </nav>
+
+    <!-- READER PAGE -->
+    <div id="reader-page" class="page active">
+        <h1 style="text-align:center; color:var(--primary);">Stotra Sangraha</h1>
+        <div id="readerList">Loading library...</div>
+    </div>
+
+    <script>
+        let registry = [];
+
+        // Fetch the JSON file from the server/GitHub
+        async function loadLibrary() {
+            try {
+                const response = await fetch('library.json');
+                if (!response.ok) throw new Error("Could not find library.json");
+                registry = await response.json();
+                renderReader();
+            } catch (error) {
+                document.getElementById('readerList').innerText = "Error loading library: " + error.message;
+            }
+        }
+
+        function renderReader() {
+            const list = document.getElementById('readerList');
+            list.innerHTML = registry.map(item => `
+                <div class="entry-title" onclick="this.nextElementSibling.classList.toggle('open')">${item.id}</div>
+                <div class="entry-content">${DOMPurify.sanitize(item.content)}</div>
+            `).join('');
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Initialize
+        loadLibrary();
+    </script>
+</body>
+</html>
