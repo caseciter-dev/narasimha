@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="sa" data-theme="gold">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>श्री नृसिंह स्तुति - Sri Narasimha Stuti Standalone Reader</title>
+  
+  <!-- PWA Metadata -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B0703">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Narasimha Stuti">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230B0703'/><text x='256' y='320' font-size='220' font-weight='bold' fill='%23D4AF37' text-anchor='middle'>ॐ</text></svg>">
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Standalone Mobile Progressive Web App Reader for Sri Narasimha Stuti & Nakha Stuti with adjustable font size and word wrapping.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       Sri Narasimha Stuti - Standalone CSS Design System
+       ========================================================================== */
+
+    :root {
+      /* Divine Gold Theme (Default Dark) */
+      --bg-primary: #0B0703;
+      --bg-secondary: #140C05;
+      --bg-card: rgba(28, 17, 8, 0.78);
+      --bg-card-border: rgba(212, 175, 55, 0.28);
+      --bg-glass: rgba(15, 7, 0, 0.90);
+      
+      --text-primary: #FAF3E0;
+      --text-secondary: #D1C2A5;
+      --text-muted: #8E7F65;
+      
+      --accent-gold: #D4AF37;
+      --accent-gold-bright: #FFE680;
+      --accent-saffron: #FF9933;
+      --accent-crimson: #C0392B;
+      --accent-glow: rgba(212, 175, 55, 0.35);
+
+      --font-sanskrit: 'Noto Serif Devanagari', 'Tiro Devanagari Sanskrit', serif;
+      --font-english: 'Outfit', sans-serif;
+      --font-heading: 'Cinzel', serif;
+
+      --header-height: 64px;
+      --base-font-size: 1.2rem;
+      --border-radius-lg: 20px;
+      --border-radius-md: 12px;
+      --border-radius-sm: 8px;
+      
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Light Theme - Sandalwood Parchment */
+    [data-theme="sandalwood"] {
+      --bg-primary: #FDF9EE;
+      --bg-secondary: #F6EDD9;
+      --bg-card: rgba(255, 255, 255, 0.90);
+      --bg-card-border: rgba(184, 134, 11, 0.3);
+      --bg-glass: rgba(253, 249, 238, 0.94);
+      
+      --text-primary: #2C1B0B;
+      --text-secondary: #5A422D;
+      --text-muted: #8C7561;
+      
+      --accent-gold: #B8860B;
+      --accent-gold-bright: #8B6508;
+      --accent-saffron: #D96B00;
+      --accent-crimson: #8B0000;
+      --accent-glow: rgba(184, 134, 11, 0.2);
+      
+      --shadow-card: 0 10px 30px rgba(74, 53, 30, 0.08);
+    }
+
+    /* Midnight Blue Theme */
+    [data-theme="midnight"] {
+      --bg-primary: #050B14;
+      --bg-secondary: #0A1424;
+      --bg-card: rgba(14, 26, 46, 0.80);
+      --bg-card-border: rgba(77, 166, 255, 0.28);
+      --bg-glass: rgba(5, 11, 20, 0.92);
+      
+      --text-primary: #E6F1FF;
+      --text-secondary: #A0C2E8;
+      --text-muted: #5C7B9E;
+      
+      --accent-gold: #4DA6FF;
+      --accent-gold-bright: #99CCFF;
+      --accent-saffron: #FF9933;
+      --accent-crimson: #FF4D4D;
+      --accent-glow: rgba(77, 166, 255, 0.3);
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-english);
+      font-size: 16px;
+      line-height: 1.6;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+    }
+
+    /* App Shell Container */
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 680px;
+      margin: 0 auto;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+      background-color: var(--bg-primary);
+    }
+
+    /* Glassmorphism Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-height);
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--bg-card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-logo {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+    }
+
+    .header-title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent-gold-bright);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Font Size Quick Controls */
+    .font-size-ctrls {
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 20px;
+      padding: 2px 6px;
+      gap: 4px;
+    }
+
+    .btn-font {
+      background: transparent;
+      border: none;
+      color: var(--accent-gold-bright);
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background var(--transition-fast);
+    }
+
+    .btn-font:active {
+      background: var(--accent-glow);
+    }
+
+    .font-size-val {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      min-width: 38px;
+      text-align: center;
+    }
+
+    /* Theme Picker Dots */
+    .theme-picker-bar {
+      display: flex;
+      gap: 5px;
+    }
+
+    .theme-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+
+    .theme-dot:active {
+      transform: scale(0.9);
+    }
+
+    .theme-dot.gold { background: #D4AF37; }
+    .theme-dot.sandalwood { background: #F6EDD9; border-color: #B8860B; }
+    .theme-dot.midnight { background: #0A1424; border-color: #4DA6FF; }
+
+    /* Install PWA Button */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-saffron));
+      color: #000;
+      border: none;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+      transition: transform var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* PWA Install Banner */
+    .pwa-banner {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(255, 153, 51, 0.1));
+      border: 1px solid var(--accent-gold);
+      border-radius: var(--border-radius-md);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .pwa-banner-text {
+      flex: 1;
+    }
+
+    .pwa-banner-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent-gold-bright);
+    }
+
+    .pwa-banner-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+
+    /* Script & Display Controls Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: var(--bg-secondary);
+      padding: 6px 10px;
+      border-radius: 30px;
+      border: 1px solid var(--bg-card-border);
+    }
+
+    .pill-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-gold);
+      color: #0F0700;
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+    }
+
+    /* View Container */
+    .view-content {
+      flex: 1;
+      padding: 16px 16px 40px 16px;
+    }
+
+    /* Section Header */
+    .section-header {
+      margin: 28px 0 16px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .section-header::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--bg-card-border), transparent);
+      z-index: 0;
+    }
+
+    .section-title-badge {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      background: var(--bg-primary);
+      border: 1px solid var(--accent-gold);
+      padding: 4px 18px;
+      border-radius: 20px;
+      color: var(--accent-gold-bright);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .section-author {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* Verse Card - CRITICAL WORD WRAP FIXES */
+    .verse-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--border-radius-lg);
+      padding: 20px 18px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      position: relative;
+      
+      /* PREVENT TEXT OVERFLOW PAST CARD BOUNDARIES */
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    .verse-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .verse-badge {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--accent-gold-bright);
+      border: 1px solid var(--bg-card-border);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      font-family: var(--font-sanskrit);
+    }
+
+    .verse-section-name {
+      font-size: 0.75rem;
+      color: var(--accent-saffron);
+      font-weight: 500;
+    }
+
+    .verse-sanskrit {
+      font-family: var(--font-sanskrit);
+      font-size: var(--base-font-size);
+      color: var(--text-primary);
+      line-height: 1.8;
+      text-align: center;
+      white-space: pre-line;
+      margin-bottom: 12px;
+      font-weight: 500;
+      
+      /* PREVENT LONG SANSKRIT WORD OVERFLOW */
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+      max-width: 100%;
+    }
+
+    .verse-iast {
+      font-family: var(--font-english);
+      font-size: calc(var(--base-font-size) * 0.82);
+      color: var(--accent-gold-bright);
+      line-height: 1.6;
+      text-align: center;
+      white-space: pre-line;
+      margin-bottom: 14px;
+      font-style: italic;
+      opacity: 0.95;
+      
+      /* PREVENT LONG IAST COMPOUND WORD OVERFLOW */
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+      max-width: 100%;
+    }
+
+    .verse-meaning {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      border-top: 1px dashed var(--bg-card-border);
+      padding-top: 12px;
+      margin-top: 12px;
+      
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .meaning-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-saffron);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .concluding-box {
+      text-align: center;
+      background: rgba(255, 153, 51, 0.08);
+      border: 1px dashed var(--accent-saffron);
+      border-radius: var(--border-radius-md);
+      padding: 14px;
+      margin: 20px 0 30px 0;
+      font-family: var(--font-sanskrit);
+      font-size: 0.95rem;
+      color: var(--accent-gold-bright);
+      
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-card-border);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Header Bar -->
+    <header class="app-header">
+      <div class="header-brand">
+        <svg class="header-logo" viewBox="0 0 512 512">
+          <circle cx="256" cy="256" r="230" fill="#0F0700" stroke="#D4AF37" stroke-width="16"/>
+          <text x="256" y="320" font-family="'Noto Serif Devanagari', serif" font-size="200" font-weight="bold" fill="#FFE680" text-anchor="middle">ॐ</text>
+        </svg>
+        <span class="header-title">श्री नृसिंह स्तुति</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Quick Font Size Controls -->
+        <div class="font-size-ctrls" title="Font Size">
+          <button class="btn-font" onclick="app.decreaseFontSize()" title="Decrease font size">A-</button>
+          <span id="font-size-label" class="font-size-val">120%</span>
+          <button class="btn-font" onclick="app.increaseFontSize()" title="Increase font size">A+</button>
+        </div>
+
+        <!-- Theme Quick Dots -->
+        <div class="theme-picker-bar">
+          <button class="theme-dot gold" onclick="app.applyTheme('gold')" title="Divine Gold Dark"></button>
+          <button class="theme-dot sandalwood" onclick="app.applyTheme('sandalwood')" title="Sandalwood Light"></button>
+          <button class="theme-dot midnight" onclick="app.applyTheme('midnight')" title="Midnight Blue"></button>
+        </div>
+
+        <!-- Header Install PWA Button -->
+        <button id="btn-header-install" class="btn-primary" style="display: none;" onclick="installPWA()">Install</button>
+      </div>
+    </header>
+
+    <!-- Reader Main Content Container -->
+    <main id="reader-container" class="view-content">
+      <!-- Injected dynamically via script below -->
+    </main>
+  </div>
+
+  <!-- Inline Application Data & Logic -->
+  <script>
+    /* ==========================================================================
+       Complete Self-Contained Stuti Data
+       ========================================================================== */
+    const STUTI_DATA = {
+      title: "श्री नृसिंह स्तुति एवं नखस्तुति",
+      subTitle: "Sri Narasimha Stuti & Nakha Stuti Reader",
+      sections: [
+        {
+          id: "maha-mantra",
+          title: "श्री नृसिंह महामन्त्र",
+          titleEn: "Sri Narasimha Maha Mantra",
+          author: "सनातनीय वैदिक मन्त्र",
+          verses: [
+            {
+              id: "mm-1",
+              number: "ॐ",
+              sanskrit: "ॐ उग्रं वीरं महाविष्णुं ज्वलन्तं सर्वतोमुखम्।\nनृसिंहं भीषणं भद्रं मृत्युमृत्युं नमाम्यहम्॥",
+              iast: "oṃ ugraṃ vīraṃ mahāviṣṇuṃ jvalantaṃ sarvatomukham |\nnṛsiṃhaṃ bhīṣaṇaṃ bhadraṃ mṛtyumṛtyuṃ namāmyaham ||",
+              meaning: "O Supreme Lord Narasimha, You are fierce and heroic, the Great Vishnu, radiant with faces in all directions, terrifying yet auspicious, the death of death itself—I bow down to You."
+            }
+          ]
+        },
+        {
+          id: "nakha-stuti",
+          title: "श्री नृसिंहनखस्तुतिः",
+          titleEn: "Sri Narasimha Nakha Stuti",
+          author: "श्रीमदानन्दतीर्थ भगवत्पादाचार्य (श्री मध्वाचार्य)",
+          verses: [
+            {
+              id: "ns-1",
+              number: "१",
+              sanskrit: "पान्त्वस्मान् पुरुहूत वैरि बलवन् मातङ्ग माद्यद्घटा\nकुंभोच्चाद्रिविपाटनाऽधिकपटु प्रत्येक वज्रायिताः ।\nश्रीमत्कण्ठीरवास्यप्रततसुनखरा दारिताराऽतिदूर\nप्रद्ध्वस्त ध्वान्त शान्त प्रवितत मनसा भाविता भूरिभागैः ॥ १॥",
+              iast: "pāntvasmān puruhūta vairi balavan mātaṅga mādyadghaṭā\nkuṃbhoccādrivipāṭanā'dhikapaṭu pratyeka vajrāyitāḥ |\nśrīmatkaṇṭhīravāsyapratatasunakharā dāritārā'tidūra\npraddhvasta dhvānta śānta pravitate manasā bhāvitā bhūribhāgaiḥ || 1 ||",
+              meaning: "May the prominent, glorious nails of the Lion-faced Lord Narasimha protect us! Each nail is more powerful than a thunderbolt, capable of tearing apart the mountain-like temples of the mad elephant-like powerful enemies of Indra. They rip apart all foes, dispel deep spiritual darkness, and are endlessly meditated upon with a serene mind by the most fortunate souls."
+            },
+            {
+              id: "ns-2",
+              number: "२",
+              sanskrit: "लक्ष्मीकांतसमन्ततोऽपि कलयन् नैवेशितुः ते समम्\nपश्याम्युत्तमवस्तु दूरतरतो पास्तं रसो योऽष्टमः ।\nयद्रोषोत्कर दक्षनेत्रकुटिलः प्रान्तोत्थिताऽग्नि स्फुरत्\nखद्योतोपमविस्फुलिङ्ग भसिता ब्रह्मेशशक्रोत्कराः ॥ २॥",
+              iast: "lakṣmīkāntasamantato'pi kalayan naiveśituḥ te samam\npaśyāmyuttamavastu dūratarato pāstaṃ raso yo'ṣṭamaḥ |\nyadroṣotkara dakṣanetrakuṭilaḥ prāntotthitā'gni sphurat\nkhadyotopamavisphuliṅga bhasitā brahmeśaśakrotkarāḥ || 2 ||",
+              meaning: "O Beloved Lord of Lakshmi! Looking everywhere in the universe, I see no supreme entity equal or superior to You; such an idea is as impossible as an eighth taste! A single spark of fire arising from the corner of Your fierce right eye in anger can instantly reduce hosts of Brahma, Shiva, and Indra to mere ashes like fireflies."
+            }
+          ],
+          concludingText: "इति श्रीमदानन्दतीर्थ भगवत्पादाचार्य विरचितं श्री नृसिंहनखस्तुतिः सम्पूर्णम् ॥"
+        },
+        {
+          id: "narasimha-stuti",
+          title: "श्रीनरसिंहस्तुतिः",
+          titleEn: "Sri Narasimha Stuti",
+          author: "श्री नारायण पण्डिताचार्य (पुत्र: श्री त्रिविक्रम पण्डिताचार्य)",
+          verses: [
+            {
+              id: "stuti-1",
+              number: "१",
+              sanskrit: "उदयरविसहस्रद्योतितं रूक्षवीक्षं प्रलयजलधिनादं कल्पकृद्वह्निवक्त्रम् ।\nसुरपतिरिपुवक्षश्छेदरक्तोक्षिताङ्गं प्रणतभयहरं तं नारसिंहं नमामि ॥१॥",
+              iast: "udayaravisahasrodyotitaṃ rūkṣavīkṣaṃ pralayajaladhinādaṃ kalpakṛdvahnivaktram |\nsurapatiripuvakṣaśchedaraktoṣitāṅgaṃ praṇatabhayaharaṃ taṃ nārasiṃhaṃ namāmi || 1 ||",
+              meaning: "I bow down to Lord Narasimha, radiant like thousands of rising suns, with a sharp, terrifying gaze, whose roar echoes like the cosmic ocean at dissolution, whose face blazes with apocalyptic fire, whose body is bathed in the blood of the demon king, and who removes all fear of those who surrender to Him."
+            },
+            {
+              id: "stuti-2",
+              number: "२",
+              sanskrit: "प्रलयरविकरालाकाररुक्चक्रवालं विरलयदुरुरोचीरोचिताशान्तराल ।\nप्रतिभयतम कोपात्त्युत्कटोच्चाट्टहासिन् दह दह नरसिंहासह्यवीर्याहितं मे ॥२॥",
+              iast: "pralayaravikarālākārarukcakravālaṃ viralayadururocīrocitāśāntarāla |\npratibhayatama kopāttyutkaṭoccāṭṭahāsin daha daha narasīṃhāsahyavīryāhitaṃ me || 2 ||",
+              meaning: "O Lord Narasimha of unbearable prowess! Encircled by terrifying light like suns at cosmic destruction, illuminating all realms with Your immense brightness, roaring with frightening laughter in intense anger—burn, burn away my enemies and inner afflictions!"
+            },
+            {
+              id: "stuti-3",
+              number: "३",
+              sanskrit: "सरसरभसपादापातभाराभिराव प्रचकितचलसप्तद्वन्द्वलोकस्तुतस्त्त्वम् ।\nरिपुरुधिरनिषेकेणेव शोणाङ्घ्रिशालिन् दह दह नरसिंहासह्यवीर्याहितं मे ॥३॥",
+              iast: "sarasarabhasapādāpātabhārābhirāva pracakitacalasaptadvandvalokastutasttvam |\nripurudhiraniṣekeṇeva śoṇāṅghriśālin daha daha narasīṃhāsahyavīryāhitaṃ me || 3 ||",
+              meaning: "O Lord whose feet are reddened as if washed in enemy blood! The thunderous impact of Your forceful steps causes all fourteen worlds to shake in awe while chanting Your praise. Burn, burn away all my adversaries!"
+            },
+            {
+              id: "stuti-4",
+              number: "४",
+              sanskrit: "तव घनघनघोषो घोरमाघ्राय जङ्घापरिघमलघुमूरुव्याजतेजोगिरिञ्च ।\nघनविघटितमागाद्दैत्यजङ्घालसङ्घो दह दह नरसिंहासह्यवीर्याहितं मे ॥४॥",
+              iast: "tava ghanaghanaghoṣo ghoramāghrāya jaṅghāparighamalaghumūruvyājatejogiriñca |\nghanavighaṭitamāgāddaityajaṅghālasaṅgho daha daha narasīṃhāsahyavīryāhitaṃ me || 4 ||",
+              meaning: "Hearing Your terrifying, thunderous roar and seeing Your mountain-like legs radiating immense power, the hosts of swift demons scattered in sheer dread. O Lord Narasimha, burn away my troubles!"
+            },
+            {
+              id: "stuti-5",
+              number: "५",
+              sanskrit: "कटकिकटकराजद्धाटकाग्र्यस्थलाभा प्रकटपटतटित्ते सत्कटिस्थापट्वि ।\nकटुककटुकदुष्टाटोपदृष्टिप्रमृष्टौ दह दह नरसिंहासह्यवीर्याहितं मे ॥५॥",
+              iast: "kaṭakikaṭakarājaddhāṭakāgryasthalābhā prakaṭapaṭataṭittesatkaṭisthāpaṭvi |\nkaṭukakaṭukaduṣṭāṭopadṛṣṭipramṛṣṭau daha daha narasīṃhāsahyavīryāhitaṃ me || 5 ||",
+              meaning: "Shining like golden peaks, Your yellow silk garment flashes like lightning around Your waist. With a mere side-glance, You erase the harsh arrogance of evil beings. O Lord Narasimha, burn away my obstacles!"
+            },
+            {
+              id: "stuti-6",
+              number: "६",
+              sanskrit: "प्रखऱनखरवज्रोत्खातरूक्षारिवक्षः शिखरिशिखररक्तैराक्तसन्दोहदेह ।\nशुभलिभ शुभकुक्षे भद्रगम्भीरनाभे दह दह नरसिंहासह्यवीर्याहितं मे ॥६॥",
+              iast: "prakharanakharavajrotkhātarūkṣārivakṣaḥ śikhariśikhararaktairāktasandohadeha |\nśubhalibha śubhakukṣe bhadragambhīranābhe daha daha narasīṃhāsahyavīryāhitaṃ me || 6 ||",
+              meaning: "Your divine body is bathed in streams of blood like red mountain peaks, having torn open the demon's chest with your diamond claws. Possessing an auspicious torso and deep navel—O Lord Narasimha, burn away my foes!"
+            },
+            {
+              id: "stuti-7",
+              number: "७",
+              sanskrit: "स्खुरयति तव सक्षात्सैव नक्षत्रमाला क्षपितदितिजवक्षोव्याप्तनक्षत्रमार्गम्।\nअरिदरधरजान्वासक्तहस्तद्वयाहो दह दह नरसिंहासह्यवीर्याहितं मे ॥७॥",
+              iast: "skhurayati tava sakṣātsaiva nakṣatramālā kṣapitaditijavakṣovvyāptanakṣatramārgam |\naridaradharajānvāsaktahastadvayāho daha daha narasīṃhāsahyavīryāhitaṃ me || 7 ||",
+              meaning: "Holding the Conch and Discus with hands resting upon Your knees, the splash of blood and garland from the demon's chest shines like constellations across the sky. O Lord Narasimha, burn away my distress!"
+            },
+            {
+              id: "stuti-8",
+              number: "८",
+              sanskrit: "कटुविकटसटौघोद्धट्टनाद्भ्रष्टभूयो घनपटलविशालाकाशलब्धावकाशम् ।\nकरपरिघविमर्दप्रोद्यमं ध्यायतस्ते दह दह नरसिंहासह्यवीर्याहितं मे ॥८॥",
+              iast: "kaṭuvikaṭasaṭaughoddhaṭṭanādbhraṣṭabhūyo ghanapaṭalaviśālākāśalabdhāvakāśam |\nkaraparighavimardaprodyamaṃ dhyāyataste daha daha narasīṃhāsahyavīryāhitaṃ me || 8 ||",
+              meaning: "The shaking of Your thick mane pushes away heavy cloud layers across the sky. To those meditating on Your hands raised like iron clubs to crush evil—O Lord Narasimha, burn away my troubles!"
+            },
+            {
+              id: "stuti-9",
+              number: "९",
+              sanskrit: "हठलुठदलघिष्टोत्कण्ठदश्टोष्टविद्युत्सटशठकठिनोरः पीठभित्सुष्ठुनिष्ठाम् ।\nपठति नु तव कष्ठादिष्ठघोरान्त्रमाला दह दह नरसिंहासह्यवीर्याहितं मे ॥९॥",
+              iast: "haṭhaluṭhadalaghiṣṭotkaṇṭhadaṣṭoṣṭavidyutsaṭaśaṭhakaṭhinoraḥ pīṭhabhitsuṣṭhuniṣṭhām |\npaṭhati nu tava kaṣṭhādiṣṭaghorāntramālā daha daha narasīṃhāsahyavīryāhitaṃ me || 9 ||",
+              meaning: "Splitting the hard chest of the deceitful demon biting his lip in agony, the garland of entrails around Your neck proclaims Your supreme justice. O Lord Narasimha, burn away my enemies!"
+            },
+            {
+              id: "stuti-10",
+              number: "१०",
+              sanskrit: "हृतबहुमिहिराभासह्यसंहाररंहोहुतवहबहुहेतिह्रेषिकानन्तहेति।\nअहितविहितमोहं संवहन् सैंहमास्यं\nदह दह नरसिंहासह्यवीर्याहितं मे ॥१०॥",
+              iast: "hṛtabahumihirābhāsahya-saṃhāraramho-hutavaha-bahuheti-hreṣikānantaheti |\nahitavihitamohaṃ saṃvahan saiṃhamāsyaṃ\ndaha daha narasīṃhāsahyavīryāhitaṃ me || 10 ||",
+              meaning: "Outshining countless suns, possessing the destructive speed of cosmic fire and endless divine weapons, Your lion face strikes delusion into evildoers. O Lord Narasimha, burn away my obstacles!"
+            },
+            {
+              id: "stuti-11",
+              number: "११",
+              sanskrit: "गुरुगुरुगिरिराजकन्दरान्तर्गते वा दिनिमणिमणिशऋङ्गे वान्तमन्ह्प्रदीप्ते ।\nदधदतिकटुदंष्ट्रे भीषणोज्जिह्ववक्त्रे दह दह नरसिंहासह्यवीर्याहितं मे ॥११॥",
+              iast: "gurugurugirirājakandarāntargate vā dinimaṇimaṇiśaṅge vāntamánhpradīpte |\ndadhadatikaṭudaṃṣṭre bhīṣaṇojjihvavaktre daha dahah narasīṃhāsahyavīryāhitaṃ me || 11 ||",
+              meaning: "With sharp, fierce fangs and a frightening tongue extending from Your mouth, glowing like blazing gems inside deep mountain caves—O Lord Narasimha, burn away my afflictions!"
+            },
+            {
+              id: "stuti-12",
+              number: "१२",
+              sanskrit: "अधरितविबुधाब्धिध्यानधघैर्यं विधीध्य द्विविधविबुधधीश्रद्धापितेन्द्रारिनाशम् ।\nविदधदतिकटाहोद्धट्टनेद्धाट्टहासं दह दह नरसिंहासह्यवीर्याहितं मे ॥१२॥",
+              iast: "adharitavibudhābdhidhyānadhagheryaṃ vidhīdhya dvividhavibudhadhīśraddhāpitendrārināśam |\nvidadhadatikaṭāhoddhaṭṭaneddhāṭṭahāsaṃ daha daha narasīṃhāsahyavīryāhitaṃ me || 12 ||",
+              meaning: "Whose resounding roar and intense laughter shatter the cosmic shell, fulfilling the devotion of sages by destroying the tormentors of the gods. O Lord Narasimha, burn away my troubles!"
+            },
+            {
+              id: "stuti-13",
+              number: "१३",
+              sanskrit: "त्रिभुवनतृणमात्रत्राणतृश्नं तु नेत्र त्रयमतिलघितार्चिर्विश्टपाविष्टपादम् ।\nनवतररविताम्रं धारयन् रूक्षवीषं दह दह नरसिंहासह्यवीर्याहितं मे ॥१३॥",
+              iast: "tribhovanatṛṇamātratrāṇatṛśnaṃ tu netra trayamatilaghitārcirviṣṭapāviṣṭapādam |\nnavateraravitāmraṃ dhārayan rūkṣavīṣaṃ daha daha narasīṃhāsahyavīryāhitaṃ me || 13 ||",
+              meaning: "Your three eyes, reddish like the morning sun, view the three worlds as mere straw before Your protection, while Your feet encompass all creation. O Lord Narasimha, burn away my hardship!"
+            },
+            {
+              id: "stuti-14",
+              number: "१४",
+              sanskrit: "भ्रमदभिभवभूभृद्भूरिभूभारसद्भिद्भिदनविभवभ्रूविभ्रमादभ्रशुभ्र ।\nऋभुभवभयभेत्तऱ्भासिभोभोविभाभिर्दह दह नरसिंहासह्यवीर्याहितं मे ॥१४॥",
+              iast: "bhramadabhibhavabhūbhṛdbhūribhūbhārasadbhiddhidanavibhavabhrūvibhramādabhraśubhra |\nṛbhubhavabhayabhettarbhāsibhobhovibhābhirdaha daha narasīṃhāsahyavīryāhitaṃ me || 14 ||",
+              meaning: "Pure white like autumn clouds, a mere twitch of Your eyebrows shatters the heavy burden of arrogant demon rulers on Earth. O Destroyer of the fear of worldly rebirth, burn away my troubles!"
+            },
+            {
+              id: "stuti-15",
+              number: "१५",
+              sanskrit: "श्रवणखचितचञ्चत्कुण्डलोल्लासिगण्डभ्रुकुटिकटुललाटश्रेष्ठनासारुणोश्ठ ।\nवरदसुरदराजद्केसरोत्सारितारे दह दह नरसिंहासह्यवीर्याहितं मे ॥१५॥",
+              iast: "śravaṇakhacitacañcatkuṇdLollāsigaṇḍabhrukuṭikaṭulalāṭaśreṣṭhanāsāruṇoṣṭha |\nvaradasurada rājadkesarotsāritāre daha daha narasīṃhāsahyavīryāhitaṃ me || 15 ||",
+              meaning: "Adorned with swinging ear ornaments against glowing cheeks, a knit brow, reddish lips, and fine nose, Your mane drives away all enemies. Bestower of boons, burn away my afflictions!"
+            },
+            {
+              id: "stuti-16",
+              number: "१६",
+              sanskrit: "प्रविकचकचराजद्रत्नकोटीरशालिन् दलगतगलदुस्रोदाररत्नाङ्गदाढ्य ।\nकलककटककाञ्चीसिञ्चिनीमुद्रिकावन् दह दह नरसिंहासह्यवीर्याहितं मे ॥१६॥",
+              iast: "pravikacakacarājadratnakoṭīraśālin dalagatagaladusrodāraratnāṅgadāḍhya |\nkalakakaṭakakāñcīsiñcinīmudrikāvan daha daha narasīṃhāsahyavīryāhitaṃ me || 16 ||",
+              meaning: "Adorned with a jeweled crown atop flowing locks, shining armlets, anklets, waistband, and signet rings—O splendid Lord Narasimha, burn away my obstacles!"
+            },
+            {
+              id: "stuti-17",
+              number: "१७",
+              sanskrit: "अरिदरमसिखेटौ चापबाणौ गदां सन् मुसलमपि कराभ्यामङ्कुशं पाशवर्यम् ।\nकरयुगलधृतान्त्रस्रग्विभिन्नारिवक्षो दह दह नरसिंहासह्यवीर्याहितं मे ॥१७॥",
+              iast: "aridaramasikheṭau cāpabāṇau gadāṃ san musalamapi karābhyāmaṅkuśaṃ pāśavaryam |\nkarayugaladhṛtāntrasragvibhinnaārivakṣo daha daha narasīṃhāsahyavīryāhitaṃ me || 17 ||",
+              meaning: "Holding in Your hands the Discus, Conch, Sword, Shield, Bow, Arrow, Mace, Pestle, Goad, and Noose, while two hands hold the entrail garland from the demon's chest—O Lord Narasimha, burn away my distress!"
+            },
+            {
+              id: "stuti-18",
+              number: "१८",
+              sanskrit: "चटचटचट दूरं मोहय भ्रामयारीन् कडिकडि कडि कायं ज्वारय स्फोटयस्व ।\nजहिजहिजहि वेगं शात्रवं सानुहन्धं दह दह नरसिंहासह्यवीर्याहितं मे ॥१८॥",
+              iast: "caṭacaṭacaṭa dūraṃ mohaya bhrāmayārīn kaḍikaḍi kaḍi kāyaṃ jvāraya sphoṭayasva |\njahijahijahi vegaṃ śātravaṃ sānubhandhaṃ daha daha narasīṃhāsahyavīryāhitaṃ me || 18 ||",
+              meaning: "Crackling with supreme energy! Delude and confound my enemies, burn and shatter their bodies, destroy swiftly all hostile forces and their followers! O Lord Narasimha, burn away my adversities!"
+            },
+            {
+              id: "stuti-19",
+              number: "१९",
+              sanskrit: "विधिभवविबुधेशभ्रामकाग्निस्फुलिङ्गप्रसिविविकटदंष्ट्रोज्जिह्ववक्त्र त्रिनेत्र ।\nकलकलकल कामं पाह मं ते सुभक्तं दह दह नरसिंहासह्यवीर्याहितं मे ॥१९॥",
+              iast: "vidhibhavavibudheśabhrāmakāgnisphuliṅgaprasivivikaṭadaṃṣṭrojjihvavaktra trinetra |\nkalakalakala kāmaṃ pāhi maṃ te subhaktaṃ daha daha narasīṃhāsahyavīryāhitaṃ me || 19 ||",
+              meaning: "O Three-eyed Lord! Sparks from Your fangs and tongue bewilder even Brahma, Shiva, and Indra. Kindly protect me, Your devoted servant! O Lord Narasimha, burn away my troubles!"
+            },
+            {
+              id: "stuti-20",
+              number: "२०",
+              sanskrit: "कुरुकुरु करुणां तां साङ्कुरां दैत्यपोते दिशदिश विषदां मे शाश्वतीं देव दृष्टिम् ।\nजय जय जय मूर्ते नार्तजेतव्यपक्षं दह दह नरसिंहासह्यवीर्याहितं मे ॥२०॥",
+              iast: "kurukuru karuṇāṃ tāṃ sāङ्kurāṃ daityapote diśadiśa viṣadāṃ me śāśvatīṃ deva dṛṣṭim |\njaya jaya jaya mūrte nārtajetavyapakṣaṃ daha daha narasīṃhāsahyavīryāhitaṃ me || 20 ||",
+              meaning: "Bestow that same tender grace You showered on child Prahlada! Grant me pure, eternal spiritual vision! Victory to You, O Lord who protects all distressed souls! Burn away my obstacles!"
+            },
+            {
+              id: "stuti-21",
+              number: "२१",
+              sanskrit: "स्तुतिरियमहितघ्नी सेविता नारसिंही तनुरिव परिशान्ता मालिनी साभिोलं ।\nतदखिलगुरुमाग्यश्रीदरूपालसद्भिः सुनियमनयकृत्यैस्सद्गुणैर्नित्ययुक्ता ॥२१॥",
+              iast: "stutiriyamahitaghnī sevitā nārasiṃhī tanuriva pariśāntā mālinī sābhiolaṃ |\ntadakhilagurumāgyaśrīdarūpālasadbiḥ suniyamanayakṛtyaissadguṇairnityayuktā || 21 ||",
+              meaning: "This divine hymn destroys all evil and bestows peace, akin to the serene form of Lord Narasimha Himself. It is forever endowed with righteousness, auspiciousness, and spiritual grace."
+            },
+            {
+              id: "stuti-22",
+              number: "२२",
+              sanskrit: "लिकुचतिलकसूनुः सद्धितार्थानुसारी नरहरिनुतिमेतां शत्रुंहारहेतुम् ।\nअकृत सकलपापध्वंसिनीं यः पठेत्तां व्रजति नृहरिलोकं कामलोभाद्यसक्तः ॥२२॥",
+              iast: "likucatilakasūnuḥ saddhitārthānusārī naraharinutimetāṃ śatruṃhārahetum |\nakṛta sakalapāpadhvaṃsinīṃ yaḥ paṭhettāṃ vrajati nṛharilokaṃ kāmalobhādyasaktaḥ || 22 ||",
+              meaning: "Composed by Narayana Panditacharya (son of Trivikrama Panditacharya) for the benefit of righteous souls, this praise destroys all enemies and sins. Whoever recites it without lust or greed ascends to the divine realm of Lord Narasimha."
+            }
+          ],
+          concludingText: "इति कविकुलतिलक श्री त्रिविक्रमपण्डिताचार्यसुत नारायणपण्डिताचार्य विरचिता श्रीनरसिंहस्तुतिः सम्पूर्णा ।"
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       Application State & UI Controller
+       ========================================================================== */
+    class StandaloneApp {
+      constructor() {
+        this.currentScript = localStorage.getItem('pref_script') || 'both'; // devanagari, iast, both
+        this.showMeaning = localStorage.getItem('pref_meaning') !== 'false';
+        this.currentTheme = localStorage.getItem('pref_theme') || 'gold';
+        this.fontSize = parseFloat(localStorage.getItem('pref_font_size') || '1.2');
+      }
+
+      init() {
+        this.applyTheme(this.currentTheme);
+        this.applyFontSize(this.fontSize);
+        this.renderReader();
+      }
+
+      applyTheme(theme) {
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('pref_theme', theme);
+      }
+
+      applyFontSize(size) {
+        this.fontSize = Math.min(2.4, Math.max(0.9, parseFloat(size)));
+        document.documentElement.style.setProperty('--base-font-size', `${this.fontSize}rem`);
+        localStorage.setItem('pref_font_size', this.fontSize);
+
+        const label = document.getElementById('font-size-label');
+        if (label) {
+          label.textContent = `${Math.round(this.fontSize * 100)}%`;
+        }
+      }
+
+      increaseFontSize() {
+        this.applyFontSize(this.fontSize + 0.1);
+      }
+
+      decreaseFontSize() {
+        this.applyFontSize(this.fontSize - 0.1);
+      }
+
+      setScript(script) {
+        this.currentScript = script;
+        localStorage.setItem('pref_script', script);
+        this.renderReader();
+      }
+
+      toggleMeaning() {
+        this.showMeaning = !this.showMeaning;
+        localStorage.setItem('pref_meaning', this.showMeaning);
+        this.renderReader();
+      }
+
+      renderReader() {
+        const container = document.getElementById('reader-container');
+        if (!container) return;
+
+        let html = `
+          <!-- PWA Install Banner -->
+          <div id="pwa-install-banner" class="pwa-banner" style="display: none;">
+            <div class="pwa-banner-text">
+              <div class="pwa-banner-title">Install Narasimha Stuti App</div>
+              <div class="pwa-banner-desc">Add to Home Screen for offline reading & quick access</div>
+            </div>
+            <button class="btn-primary" onclick="installPWA()">Install</button>
+            <button class="btn-close" onclick="dismissPWABanner()">✕</button>
+          </div>
+
+          <!-- Reading Preference Controls Bar -->
+          <div class="controls-bar">
+            <div class="pill-group">
+              <button class="pill-btn ${this.currentScript === 'devanagari' ? 'active' : ''}" onclick="app.setScript('devanagari')">संस्कृत</button>
+              <button class="pill-btn ${this.currentScript === 'iast' ? 'active' : ''}" onclick="app.setScript('iast')">IAST</button>
+              <button class="pill-btn ${this.currentScript === 'both' ? 'active' : ''}" onclick="app.setScript('both')">Both</button>
+            </div>
+
+            <button class="pill-btn ${this.showMeaning ? 'active' : ''}" onclick="app.toggleMeaning()">
+              Meaning ${this.showMeaning ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        `;
+
+        STUTI_DATA.sections.forEach(sec => {
+          html += `
+            <div class="section-header">
+              <div class="section-title-badge">${sec.title}</div>
+              <div class="section-author">${sec.author}</div>
+            </div>
+          `;
+
+          sec.verses.forEach(v => {
+            html += `
+              <div class="verse-card" id="verse-${v.id}">
+                <div class="verse-meta">
+                  <div class="verse-badge">${v.number}</div>
+                  <span class="verse-section-name">${sec.titleEn}</span>
+                </div>
+
+                ${(this.currentScript === 'devanagari' || this.currentScript === 'both') ? `<div class="verse-sanskrit">${v.sanskrit}</div>` : ''}
+                ${(this.currentScript === 'iast' || this.currentScript === 'both') ? `<div class="verse-iast">${v.iast}</div>` : ''}
+                
+                ${this.showMeaning ? `
+                  <div class="verse-meaning">
+                    <span class="meaning-label">Meaning</span>
+                    ${v.meaning}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          });
+
+          if (sec.concludingText) {
+            html += `<div class="concluding-box">${sec.concludingText}</div>`;
+          }
+        });
+
+        container.innerHTML = html;
+      }
+    }
+
+    const app = new StandaloneApp();
+    window.addEventListener('DOMContentLoaded', () => app.init());
+
+    /* ==========================================================================
+       PWA Installer Script (Service Worker Integration)
+       ========================================================================== */
+    let deferredInstallPrompt = null;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(() => {/* Offline fallback */});
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner && !localStorage.getItem('pwa_banner_dismissed')) {
+        banner.style.display = 'flex';
+      }
+      const headerBtn = document.getElementById('btn-header-install');
+      if (headerBtn) headerBtn.style.display = 'inline-block';
+    });
+
+    function installPWA() {
+      if (!deferredInstallPrompt) {
+        alert('To install on iOS: Tap Share > "Add to Home Screen". On Chrome Desktop: Click Install icon in address bar.');
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(() => {
+        deferredInstallPrompt = null;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'none';
+      });
+    }
+
+    function dismissPWABanner() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'none';
+      localStorage.setItem('pwa_banner_dismissed', 'true');
+    }
+  </script>
+</body>
+</html>
